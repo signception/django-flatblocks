@@ -3,6 +3,8 @@ from django.test import TestCase
 from django.core.cache import cache
 from django.contrib.auth.models import User
 from django import db
+from django.contrib.sites.models import Site
+
 
 from flatblocks.models import FlatBlock
 from flatblocks import settings
@@ -15,7 +17,7 @@ class BasicTests(TestCase):
         self.testblock = FlatBlock.objects.create(
              slug='block',
              header='HEADER',
-             content='CONTENT'
+             content='CONTENT',
         )
         self.admin = User.objects.create_superuser('admin', 'admin@localhost', 'adminpwd')
 
@@ -33,9 +35,9 @@ class BasicTests(TestCase):
         """
         Tests if FlatBlock.save() resets the cache.
         """
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" 60 %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" 60 %}')
         tpl.render(template.Context({}))
-        name = '%sblock' % settings.CACHE_PREFIX
+        name = '%sblock_%s_%s' % (settings.CACHE_PREFIX,settings.LANGUAGE_CODE,str(Site.objects.get_current()))
         self.assertNotEquals(None, cache.get(name))
         block = FlatBlock.objects.get(slug='block')
         block.header = 'UPDATED'
@@ -60,11 +62,11 @@ class TagTests(TestCase):
 
     def testLoadingTaglib(self):
         """Tests if the taglib defined in this app can be loaded"""
-        tpl = template.Template('{% load flatblock_tags %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}')
         tpl.render(template.Context({}))
 
     def testExistingPlain(self):
-        tpl = template.Template('{% load flatblock_tags %}{% plain_flatblock "block" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% plain_flatblock "block" %}')
         self.assertEqual(u'CONTENT', tpl.render(template.Context({})).strip())
 
     def testExistingTemplate(self):
@@ -75,26 +77,26 @@ class TagTests(TestCase):
     <div class="content">CONTENT</div>
 </div>
 """
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" %}')
         self.assertEqual(expected, tpl.render(template.Context({})))
 
     def testUsingMissingTemplate(self):
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" using "missing_template.html" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" using "missing_template.html" %}')
         exception = template.TemplateSyntaxError
         self.assertRaises(exception, tpl.render, template.Context({}))
 
     def testSyntax(self):
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" %}')
         tpl.render(template.Context({}))
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" 123 %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" 123 %}')
         tpl.render(template.Context({}))
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" using "flatblocks/flatblock.html" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" using "flatblocks/flatblock.html" %}')
         tpl.render(template.Context({}))
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" 123 using "flatblocks/flatblock.html" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" 123 using "flatblocks/flatblock.html" %}')
         tpl.render(template.Context({}))
 
     def testBlockAsVariable(self):
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock blockvar %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock blockvar %}')
         tpl.render(template.Context({'blockvar': 'block'}))
 
 
@@ -108,7 +110,7 @@ class AutoCreationTest(TestCase):
     <div class="content">foo</div>
 </div>"""
         settings.AUTOCREATE_STATIC_BLOCKS = True
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "foo" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "foo" %}')
         self.assertEqual(expected, tpl.render(template.Context({})).strip())
         self.assertEqual(FlatBlock.objects.count(), 1)
         self.assertEqual(expected, tpl.render(template.Context({})).strip())
@@ -118,14 +120,14 @@ class AutoCreationTest(TestCase):
         """Tests if a missing block with hardcoded name won't be auto-created if feature is disabled"""
         expected = u""
         settings.AUTOCREATE_STATIC_BLOCKS = False
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock "block" %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock "block" %}')
         self.assertEqual(expected, tpl.render(template.Context({})).strip())
         self.assertEqual(FlatBlock.objects.filter(slug='block').count(), 0)
 
     def testMissingVariableBlock(self):
         settings.AUTOCREATE_STATIC_BLOCKS = True
         """Tests if a missing block with variable name will simply return an empty string"""
-        tpl = template.Template('{% load flatblock_tags %}{% flatblock name %}')
+        tpl = template.Template('{% load flatblock_tags %}{% load i18n %}{% get_current_language as LANGUAGE_CODE %}{% flatblock name %}')
         self.assertEqual('', tpl.render(template.Context({'name': 'foo'})).strip())
 
 

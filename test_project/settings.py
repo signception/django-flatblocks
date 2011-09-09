@@ -16,10 +16,12 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'flatblocks',
 )
-LANGUAGE_CODE="en"
+LANGUAGE_CODE = 'en-us'
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
 )
 ROOT_URLCONF = 'test_project.urls'
+SITE_ID=1

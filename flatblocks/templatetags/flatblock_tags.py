@@ -45,6 +45,7 @@ from django import template
 from django.template import loader
 from django.db import models
 from django.core.cache import cache
+from django.contrib.sites.models import Site
 
 from flatblocks import settings
 
@@ -132,6 +133,7 @@ class FlatBlockNode(template.Node):
         self.is_variable = is_variable
         self.cache_time = cache_time
         self.with_template = with_template
+        self.lang_code = template.Variable('LANGUAGE_CODE')
 
     def render(self, context):
         if self.is_variable:
@@ -149,9 +151,18 @@ class FlatBlockNode(template.Node):
             new_ctx.update(context)
         try:
             flatblock = None
+            
+            try:
+                lang = self.lang_code.resolve(context)
+            except template.VariableDoesNotExist:
+                logger.error('no LANGUAGE_CODE variable found in context, to enable you must use the RequestContext context or via: {% load i18n %}{% get_current_language as LANGUAGE_CODE %}')
+                return 'flatblocks error, see log'
+            site = Site.objects.get_current()  # Django caches get_current()
+            cache_key = '%s%s_%s_%s' % (settings.CACHE_PREFIX, real_slug, lang, str(site))
+
             if self.cache_time != 0:
-                cache_key = settings.CACHE_PREFIX + real_slug
                 flatblock = cache.get(cache_key)
+                
             if flatblock is None:
 
                 # if flatblock's slug is hard-coded in template then it is
@@ -159,12 +170,13 @@ class FlatBlockNode(template.Node):
                 # This behaviour can be configured using the
                 # FLATBLOCKS_AUTOCREATE_STATIC_BLOCKS setting
                 if self.is_variable or not settings.AUTOCREATE_STATIC_BLOCKS:
-                    flatblock = FlatBlock.objects.get(slug=real_slug)
+                    flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
                 else:
                     flatblock, _ = FlatBlock.objects.get_or_create(
-                                      slug=real_slug,
+                                      slug=real_slug, lang_code=lang, site=site,
                                       defaults = {'content': real_slug}
                                    )
+                    
                 if self.cache_time != 0:
                     if self.cache_time is None or self.cache_time == 'None':
                         logger.debug("Caching %s for the cache's default timeout"

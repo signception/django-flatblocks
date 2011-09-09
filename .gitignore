@@ -8,3 +8,9 @@ local_settings.py
 django_flatblocks.egg-info
 dist
 build
+.project
+.pydevproject
+/parts/*
+/eggs/*
+/bin/*
+/develop-eggs/*

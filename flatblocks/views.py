@@ -54,7 +54,8 @@ def edit(request, pk, modelform_class=FlatBlockForm, permission_check=None,
             instance = form.save(commit=False)
             instance.slug = flatblock.slug
             instance.save()
-            del request.session[session_key]
+            if session_key in request.session:
+                del request.session[session_key]
             redirect_to = success_url and success_url or origin
             return HttpResponseRedirect(redirect_to)
     else:
