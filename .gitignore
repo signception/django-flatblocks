@@ -14,3 +14,7 @@ build
 /eggs/*
 /bin/*
 /develop-eggs/*
+/bin
+/parts
+/eggs
+/develop-eggs
