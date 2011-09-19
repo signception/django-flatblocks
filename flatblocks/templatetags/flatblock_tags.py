@@ -151,12 +151,16 @@ class FlatBlockNode(template.Node):
             new_ctx.update(context)
         try:
             flatblock = None
+            lang = settings.LANGUAGE_CODE
             
-            try:
-                lang = self.lang_code.resolve(context)
-            except template.VariableDoesNotExist:
-                logger.error('no LANGUAGE_CODE variable found in context, to enable you must use the RequestContext context or via: {% load i18n %}{% get_current_language as LANGUAGE_CODE %}')
-                return 'flatblocks error, see log'
+            if 'django.middleware.locale.LocaleMiddleware' not in settings.MIDDLEWARE_CLASSES:
+                logger.warning("For i18L support in flatblocks you must have django.middleware.locale.LocaleMiddleware in your MIDDLEWARE_CLASSES")
+            else:
+                try:
+                    lang = self.lang_code.resolve(context)
+                except template.VariableDoesNotExist:
+                    raise Exception('no LANGUAGE_CODE variable found in context. For i18l support in flatblocks you must use the RequestContext context or add this to the top of your templates: {% load i18n %}{% get_current_language as LANGUAGE_CODE %}')
+                
             site = Site.objects.get_current()  # Django caches get_current()
             cache_key = '%s%s_%s_%s' % (settings.CACHE_PREFIX, real_slug, lang, str(site))
 
@@ -167,7 +171,7 @@ class FlatBlockNode(template.Node):
 
                 # if flatblock's slug is hard-coded in template then it is
                 # safe and convenient to auto-create block if it doesn't exist.
-                # This behaviour can be configured using the
+                # This behavior can be configured using the
                 # FLATBLOCKS_AUTOCREATE_STATIC_BLOCKS setting
                 if self.is_variable or not settings.AUTOCREATE_STATIC_BLOCKS:
                     flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
