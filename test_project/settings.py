@@ -12,6 +12,9 @@ TEMPLATE_DEBUG=True
 DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = '/tmp/flatblocks.db'
 MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 )
 INSTALLED_APPS = (
@@ -23,11 +26,11 @@ INSTALLED_APPS = (
     'flatblocks',
 )
 LANGUAGES = (
-    ('en', 'English'),
+    ('en-us', 'English'),
     ('de', 'German'),
     ('es', 'Spanish'),
 )
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'en-us'
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
 )

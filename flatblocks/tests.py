@@ -18,6 +18,7 @@ class BasicTests(TestCase):
              slug='block',
              header='HEADER',
              content='CONTENT',
+             site=Site.objects.get_current(),
         )
         self.admin = User.objects.create_superuser('admin', 'admin@localhost', 'adminpwd')
 
@@ -57,7 +58,8 @@ class TagTests(TestCase):
         self.testblock = FlatBlock.objects.create(
              slug='block',
              header='HEADER',
-             content='CONTENT'
+             content='CONTENT',
+             site=Site.objects.get_current(),
         )
 
     def testLoadingTaglib(self):
