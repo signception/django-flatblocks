@@ -5,8 +5,26 @@
         <title>Test page for flatblock rendering</title>
     </head>
     <body>
+    	test1:<hr>
         {% flatblock 'test1' 0 %} <!-- No caching -->
+    	</br>
+    	</br>
+    	test2:<hr>
         {% flatblock 'test2' 10 %} <!-- 10s caching --> 
+    	</br>
+    	</br>
+    	test3:<hr>
         {% flatblock 'test3' None %} <!-- Default length caching -->
+        </br>
+    	</br>
+    	
+		<form action="/i18n/setlang/" method="post">
+			<select name="language">
+			    {% for lang in LANGUAGES %}
+			    <option value="{{ lang.0 }}"{% if lang.0 == LANGUAGE_CODE %} selected{% endif %}>{{ lang.1 }}</option>
+			    {% endfor %}
+			</select>
+			<input type="submit" value="Go" />
+		</form>
     </body>
 </html>

@@ -8,5 +8,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url('^flatblocks/', include("flatblocks.urls")),
     url('^admin/', include(admin.site.urls)),
+    url('^i18n/', include('django.conf.urls.i18n')),
     url('^/?', views.index),
 )

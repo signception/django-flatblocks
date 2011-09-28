@@ -46,6 +46,7 @@ from django.template import loader
 from django.db import models
 from django.core.cache import cache
 from django.contrib.sites.models import Site
+from django.utils.translation import get_language
 
 from flatblocks import settings
 
@@ -133,7 +134,6 @@ class FlatBlockNode(template.Node):
         self.is_variable = is_variable
         self.cache_time = cache_time
         self.with_template = with_template
-        self.lang_code = template.Variable('LANGUAGE_CODE')
 
     def render(self, context):
         if self.is_variable:
@@ -156,10 +156,7 @@ class FlatBlockNode(template.Node):
             if 'django.middleware.locale.LocaleMiddleware' not in settings.MIDDLEWARE_CLASSES:
                 logger.warning("For i18n support in flatblocks you must have django.middleware.locale.LocaleMiddleware in your MIDDLEWARE_CLASSES")
             else:
-                try:
-                    lang = self.lang_code.resolve(context)
-                except template.VariableDoesNotExist:
-                    raise Exception('no LANGUAGE_CODE variable found in context. For i18n support in flatblocks you must use the RequestContext context or add this to the top of your templates: {% load i18n %}{% get_current_language as LANGUAGE_CODE %}')
+                lang = get_language()
                 
             site = Site.objects.get_current()  # Django caches get_current()
             cache_key = '%s%s_%s_%s' % (settings.CACHE_PREFIX, real_slug, lang, str(site))
