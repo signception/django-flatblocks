@@ -21,7 +21,7 @@ class FlatBlock(models.Model):
                 help_text=_("An optional header for this content"))
     content = models.TextField(verbose_name=_('Content'), blank=True, null=True)
     lang_code = models.CharField(verbose_name=_(u"language"), help_text="Language code, if this chunk is translated. Same format as LANGUAGE_CODE setting, e.g. sv-se, or de-de, etc.", blank=True, max_length=5, default=settings.LANGUAGE_CODE)
-    site = models.ForeignKey(Site, blank=True, verbose_name=_('site'))
+    site = models.ForeignKey(Site, null=True, blank=True, verbose_name=_('site'))
 
     def __unicode__(self):
         return u"%s, %s, %s" % (self.slug,str(self.site),self.lang_code)
