@@ -171,12 +171,21 @@ class FlatBlockNode(template.Node):
                 # This behavior can be configured using the
                 # FLATBLOCKS_AUTOCREATE_STATIC_BLOCKS setting
                 if self.is_variable or not settings.AUTOCREATE_STATIC_BLOCKS:
-                    flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
+                    if site:
+                        flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
+                    else:
+                        flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang)
                 else:
-                    flatblock, _ = FlatBlock.objects.get_or_create(
-                                      slug=real_slug, lang_code=lang, site=site,
-                                      defaults = {'content': real_slug}
-                                   )
+                    if site:
+                        flatblock, _ = FlatBlock.objects.get_or_create(
+                                          slug=real_slug, lang_code=lang, site=site,
+                                          defaults = {'content': real_slug}
+                                       )
+                    else:
+                        flatblock, _ = FlatBlock.objects.get_or_create(
+                                          slug=real_slug, lang_code=lang,
+                                          defaults = {'content': real_slug}
+                                       )
                     
                 if self.cache_time != 0:
                     if self.cache_time is None or self.cache_time == 'None':
