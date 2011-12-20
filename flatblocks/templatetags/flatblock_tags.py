@@ -179,11 +179,6 @@ class FlatBlockNode(template.Node):
                                       slug=real_slug, lang_code=lang, site=site,
                                       defaults = {'content': real_slug}
                                    )
-                    if not flatblock:
-                        flatblock, _ = FlatBlock.objects.get_or_create(
-                                          slug=real_slug, lang_code=lang,
-                                          defaults = {'content': real_slug}
-                                       )
                     
                 if self.cache_time != 0:
                     if self.cache_time is None or self.cache_time == 'None':
