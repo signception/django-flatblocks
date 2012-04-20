@@ -163,15 +163,21 @@ class FlatBlockNode(template.Node):
 
             if self.cache_time != 0:
                 flatblock = cache.get(cache_key)
-                
+            
             if flatblock is None:
 
                 # if flatblock's slug is hard-coded in template then it is
                 # safe and convenient to auto-create block if it doesn't exist.
                 # This behavior can be configured using the
                 # FLATBLOCKS_AUTOCREATE_STATIC_BLOCKS setting
+                
                 if self.is_variable or not settings.AUTOCREATE_STATIC_BLOCKS:
-                    flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
+                    try:
+                        flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang, site=site)
+                        
+                    # this is a bit ugly, but it will allow us to fall back on un-sited flatblock
+                    except:
+                        flatblock = FlatBlock.objects.get(slug=real_slug, lang_code=lang)
                 else:
                     flatblock, _ = FlatBlock.objects.get_or_create(
                                       slug=real_slug, lang_code=lang, site=site,
