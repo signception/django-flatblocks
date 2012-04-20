@@ -18,3 +18,4 @@ build
 /parts
 /eggs
 /develop-eggs
+/.settings

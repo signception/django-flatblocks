@@ -13,7 +13,7 @@ class FlatBlock(models.Model):
     basically a piece of content with a given name (slug) and an optional
     title (header) which you can, for example, use in a sidebar of a website.
     """
-    slug = models.CharField(max_length=255, 
+    slug = models.CharField(max_length=255, unique=True,
                 verbose_name=_('Slug'),
                 help_text=_("A unique name used for reference in the templates"))
     header = models.CharField(blank=True, null=True, max_length=255,

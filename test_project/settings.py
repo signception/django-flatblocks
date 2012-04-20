@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'flatblocks',
+    'south'
 )
 LANGUAGES = (
     ('en-us', 'English'),
