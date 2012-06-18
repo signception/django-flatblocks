@@ -151,12 +151,7 @@ class FlatBlockNode(template.Node):
             new_ctx.update(context)
         try:
             flatblock = None
-            lang = settings.LANGUAGE_CODE            
-            
-            if 'django.middleware.locale.LocaleMiddleware' not in settings.MIDDLEWARE_CLASSES:
-                logger.warning("For i18n support in flatblocks you must have django.middleware.locale.LocaleMiddleware in your MIDDLEWARE_CLASSES")
-            else:
-                lang = get_language()
+            lang = get_language()
                 
             site = Site.objects.get_current()  # Django caches get_current()
             cache_key = '%s%s_%s_%s' % (settings.CACHE_PREFIX, real_slug, lang, str(site))
